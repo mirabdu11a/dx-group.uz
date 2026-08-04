@@ -1,0 +1,36 @@
+import './App.scss'
+import Navbar from './components/Navbar'
+import { Route, Routes } from 'react-router-dom'
+import Home from './pages/Home'
+import About from './pages/About'
+import Products from './pages/Products'
+import Portfolio from './pages/Portfolio'
+import Contact from './pages/Contact'
+import Footer from './components/Footer'
+import ContactSection from './components/ContactSection'
+import Location from './components/Location'
+import { ToastContainer } from 'react-toastify'
+import ScrollToTop from './components/ScrollToTop'
+
+function App() {
+
+  return (
+    <>
+      <Navbar/>
+      <ScrollToTop/>
+      <ToastContainer/>
+      <Routes>
+        <Route index element={<Home/>}/>
+        <Route path='/about' element={<About />} />
+        <Route path='/products' element={<Products />} />
+        <Route path='/portfolio' element={<Portfolio />} />
+        <Route path='/contact' element={<Contact />} />
+      </Routes>
+      <ContactSection/>
+      <Location/>
+      <Footer/>
+    </>
+  )
+}
+
+export default App
