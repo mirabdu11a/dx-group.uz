@@ -4,8 +4,10 @@ export const fetchCategories = () => apiGet('/api/category/')
 
 export function fetchProducts({ category, page } = {}) {
   const params = new URLSearchParams()
-  if (category) params.set('category', String(category))
-  if (page) params.set('page', String(page))
+  // `!= null` (not truthiness) so a valid `0` — a real category id or page
+  // number — isn't mistaken for "absent" and silently dropped.
+  if (category != null) params.set('category', String(category))
+  if (page != null) params.set('page', String(page))
   const qs = params.toString()
   return apiGet(`/api/product/${qs ? `?${qs}` : ''}`)
 }
@@ -14,7 +16,7 @@ export const fetchProduct = (id) => apiGet(`/api/product/${id}/`)
 
 export function fetchPortfolioList({ page } = {}) {
   const params = new URLSearchParams()
-  if (page) params.set('page', String(page))
+  if (page != null) params.set('page', String(page))
   const qs = params.toString()
   return apiGet(`/api/portfolio/${qs ? `?${qs}` : ''}`)
 }

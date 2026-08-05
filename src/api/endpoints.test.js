@@ -41,6 +41,13 @@ describe('endpoints', () => {
     expect(calledUrl()).toBe(`${BASE_URL}/api/product/?category=3&page=2`)
   })
 
+  it('fetchProducts keeps a falsy-but-valid category of 0', async () => {
+    // category=0 and page=0 are valid values, not "absent" — a truthy check
+    // would silently drop them from the query string.
+    await fetchProducts({ category: 0 })
+    expect(calledUrl()).toBe(`${BASE_URL}/api/product/?category=0`)
+  })
+
   it('fetchProduct hits the detail route', async () => {
     await fetchProduct(12)
     expect(calledUrl()).toBe(`${BASE_URL}/api/product/12/`)
@@ -54,6 +61,11 @@ describe('endpoints', () => {
   it('fetchPortfolioList passes the page', async () => {
     await fetchPortfolioList({ page: 3 })
     expect(calledUrl()).toBe(`${BASE_URL}/api/portfolio/?page=3`)
+  })
+
+  it('fetchPortfolioList keeps a falsy-but-valid page of 0', async () => {
+    await fetchPortfolioList({ page: 0 })
+    expect(calledUrl()).toBe(`${BASE_URL}/api/portfolio/?page=0`)
   })
 
   it('fetchPortfolioItem hits the detail route', async () => {

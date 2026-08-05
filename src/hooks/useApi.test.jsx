@@ -91,4 +91,44 @@ describe('useApi', () => {
 
     expect(result.current.data).toBe('second')
   })
+
+  it('clears a stale error once a subsequent request succeeds', async () => {
+    const boom = new Error('boom')
+    const fetcher = vi
+      .fn()
+      .mockRejectedValueOnce(boom)
+      .mockResolvedValueOnce([{ id: 1 }])
+
+    const { result, rerender } = renderHook(
+      ({ id }) => useApi(() => fetcher(id), [id]),
+      { initialProps: { id: 1 } },
+    )
+
+    await waitFor(() => expect(result.current.error).toBe(boom))
+
+    rerender({ id: 2 })
+
+    await waitFor(() => expect(result.current.data).toEqual([{ id: 1 }]))
+    expect(result.current.error).toBeNull()
+  })
+
+  it('clears stale data once a subsequent request fails', async () => {
+    const boom = new Error('boom')
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce([{ id: 1 }])
+      .mockRejectedValueOnce(boom)
+
+    const { result, rerender } = renderHook(
+      ({ id }) => useApi(() => fetcher(id), [id]),
+      { initialProps: { id: 1 } },
+    )
+
+    await waitFor(() => expect(result.current.data).toEqual([{ id: 1 }]))
+
+    rerender({ id: 2 })
+
+    await waitFor(() => expect(result.current.error).toBe(boom))
+    expect(result.current.data).toBeNull()
+  })
 })
