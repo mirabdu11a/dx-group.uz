@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import logo from '../assets/logo-nav.svg';
 import { NavLink } from 'react-router-dom';
 import iconPhone from '../assets/phone.svg';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar() {
   const [hide, setHide] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +45,11 @@ export default function Navbar() {
             </a>
           </div>
 
-          <select>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            aria-label={t('nav.language')}
+          >
             <option value="ru">Русский</option>
             <option value="uz">O'zbekcha</option>
           </select>
@@ -53,11 +61,11 @@ export default function Navbar() {
           </NavLink>
 
           <ul className="nav-list">
-            <li><NavLink to='/'>Главная</NavLink></li>
-            <li><NavLink to='/about'>О нас</NavLink></li>
-            <li><NavLink to='/products'>Продукты</NavLink></li>
-            <li><NavLink to='/portfolio'>Портфолио</NavLink></li>
-            <li><NavLink to='/contact'>Контакты</NavLink></li>
+            <li><NavLink to='/'>{t('nav.home')}</NavLink></li>
+            <li><NavLink to='/about'>{t('nav.about')}</NavLink></li>
+            <li><NavLink to='/products'>{t('nav.products')}</NavLink></li>
+            <li><NavLink to='/portfolio'>{t('nav.portfolio')}</NavLink></li>
+            <li><NavLink to='/contact'>{t('nav.contact')}</NavLink></li>
           </ul>
         </div>
       </div>
