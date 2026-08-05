@@ -27,6 +27,32 @@ describe('mediaUrl', () => {
   it('inserts the missing slash', () => {
     expect(mediaUrl('media/a.png')).toBe(`${BASE_URL}/media/a.png`)
   })
+
+  it('passes protocol-relative URLs through untouched', () => {
+    // A protocol-relative URL (`//host/path`) already names its own host.
+    // Without this, it falls into the relative branch and, because it
+    // already starts with "/", no slash gets inserted — silently producing
+    // `${BASE_URL}//cdn.example.com/...`, a URL pointing at the wrong host.
+    const url = '//cdn.example.com/media/a.png'
+    expect(mediaUrl(url)).toBe(url)
+  })
+})
+
+describe('BASE_URL', () => {
+  it('strips trailing slashes from VITE_API_URL', async () => {
+    // BASE_URL is computed once at module load from import.meta.env, so a
+    // plain top-level import can't observe a different env value here —
+    // stub the env, drop the module from the cache, and re-import fresh.
+    vi.stubEnv('VITE_API_URL', 'http://example.test:9999///')
+    vi.resetModules()
+
+    const fresh = await import('./client')
+
+    expect(fresh.BASE_URL).toBe('http://example.test:9999')
+
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
 })
 
 describe('apiGet', () => {
@@ -47,6 +73,21 @@ describe('apiGet', () => {
     fetch.mockResolvedValue({ ok: false, status: 404, json: async () => ({}) })
 
     await expect(apiGet('/api/product/9/')).rejects.toMatchObject({ status: 404 })
+  })
+
+  it('falls back to a null body when the error response is not valid JSON', async () => {
+    fetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new SyntaxError('Unexpected end of JSON input')
+      },
+    })
+
+    await expect(apiGet('/api/category/')).rejects.toMatchObject({
+      status: 500,
+      body: null,
+    })
   })
 })
 

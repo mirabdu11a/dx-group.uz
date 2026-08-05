@@ -36,6 +36,8 @@ export const apiPost = (path, body) =>
 // for any path that arrives relative, and it normalises the missing slash.
 export function mediaUrl(path) {
   if (!path) return null
-  if (/^https?:\/\//i.test(path)) return path
+  // Matches absolute (http://, https://) and protocol-relative (//) URLs —
+  // both already name their own host and must pass through untouched.
+  if (/^(https?:)?\/\//i.test(path)) return path
   return `${BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`
 }
