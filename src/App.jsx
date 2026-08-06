@@ -6,6 +6,7 @@ import About from './pages/About'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
 import Portfolio from './pages/Portfolio'
+import PortfolioDetail from './pages/PortfolioDetail'
 import Contact from './pages/Contact'
 import Footer from './components/Footer'
 import ContactSection from './components/ContactSection'
@@ -26,6 +27,7 @@ function App() {
         <Route path='/products' element={<Products />} />
         <Route path='/products/:id' element={<ProductDetail />} />
         <Route path='/portfolio' element={<Portfolio />} />
+        <Route path='/portfolio/:id' element={<PortfolioDetail />} />
         <Route path='/contact' element={<Contact />} />
       </Routes>
       <ContactSection/>
