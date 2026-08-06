@@ -67,7 +67,12 @@ ls -1dt */ 2>/dev/null | tail -n +$((KEEP + 1)) | while read -r old; do
 done
 
 log "sog'liq tekshiruvi"
-code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: dx-group.uz" http://127.0.0.1/)
+# Over https, resolved to loopback: plain http answers 301 since certbot
+# added the redirect, so checking http here would fail every deploy. -k
+# skips verification because we are connecting to 127.0.0.1 and only care
+# that nginx serves the new release, not that the cert chain validates.
+code=$(curl -sk -o /dev/null -w "%{http_code}" \
+  --resolve dx-group.uz:443:127.0.0.1 https://dx-group.uz/)
 echo "  / -> $code"
 [ "$code" = "200" ] || { echo "XATO: sayt javob bermayapti"; exit 1; }
 
