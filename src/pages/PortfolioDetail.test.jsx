@@ -117,6 +117,20 @@ describe('PortfolioDetail', () => {
     expect(back).toHaveAttribute('href', '/portfolio')
   })
 
+  // Added beyond the brief, mirroring ProductDetail.test.jsx's "hides the
+  // code line when the product has none": `formatDate` returns '' for a
+  // falsy date, so without a guard the `<p className="Detail__code">`
+  // would still render — an empty paragraph leaving a visible gap.
+  it('hides the date line when the project has none', async () => {
+    vi.spyOn(endpoints, 'fetchPortfolioItem').mockResolvedValue({ ...PROJECT, date: '' })
+
+    renderDetail()
+
+    await screen.findByText('ЖК «Навруз»')
+    expect(screen.queryByText('01.09.2025')).toBeNull()
+    expect(document.querySelector('.Detail__code')).toBeNull()
+  })
+
   it('shows an error message when the project cannot be loaded', async () => {
     vi.spyOn(endpoints, 'fetchPortfolioItem').mockRejectedValue(new Error('404'))
 

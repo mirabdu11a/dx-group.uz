@@ -6,8 +6,8 @@ import { useApi } from '../hooks/useApi'
 import { fetchPortfolioItem } from '../api/endpoints'
 import { useLanguage } from '../context/LanguageContext'
 import { pickLocale } from '../utils/locale'
+import { formatDate } from '../utils/date'
 import { mediaUrl } from '../api/client'
-import { formatDate } from './Portfolio'
 
 export default function PortfolioDetail() {
   const { id } = useParams()
@@ -93,7 +93,9 @@ export default function PortfolioDetail() {
           </div>
 
           <div className="col-md-6">
-            <p className="Detail__code">{formatDate(data.date)}</p>
+            {data.date && (
+              <p className="Detail__code">{formatDate(data.date)}</p>
+            )}
             <h1 className="title">{title}</h1>
             <p className="Detail__tizer">{pickLocale(data, language, 'tizer')}</p>
             {/* Safe here specifically because this HTML is authored by staff

@@ -6,21 +6,11 @@ import { useApi } from '../hooks/useApi'
 import { fetchPortfolioList, fetchUrl } from '../api/endpoints'
 import { useLanguage } from '../context/LanguageContext'
 import { pickLocale } from '../utils/locale'
+import { formatDate } from '../utils/date'
 import { mediaUrl } from '../api/client'
 import Skeleton from '../components/Skeleton'
 
 const SKELETON_COUNT = 6
-
-// The API sends ISO dates; the site shows the local dd.mm.yyyy form. A
-// missing date (the field isn't documented as required) renders blank
-// rather than throwing on `.split('-')` of undefined.
-// Exported so PortfolioDetail can reuse it instead of duplicating a third
-// copy of the same dd.mm.yyyy conversion.
-export function formatDate(value) {
-  if (!value) return ''
-  const [year, month, day] = value.split('-')
-  return `${day}.${month}.${year}`
-}
 
 export default function Portfolio() {
   const { t } = useTranslation()
