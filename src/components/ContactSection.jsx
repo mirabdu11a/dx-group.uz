@@ -4,8 +4,10 @@ import { PhoneInput } from 'react-international-phone'
 import 'react-international-phone/style.css';
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useTranslation } from 'react-i18next';
 
 export default function ContactSection() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
@@ -20,7 +22,7 @@ export default function ContactSection() {
   const uzbPhoneRegex = /^\+998\d{9}$/;
 
   if (!uzbPhoneRegex.test(phone)) {
-    toast.error("Номер телефона должен начинаться с +998 и содержать 9 цифр!");
+    toast.error(t('form.invalidPhone'));
     setIsLoading(false);
     return;
   }
@@ -30,12 +32,12 @@ export default function ContactSection() {
       `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${text}`
     );
 
-    toast.success("Завершено успешно. Дождитесь обратного звонка!");
+    toast.success(t('form.success'));
     setName("");
     setPhone("");
     setMessage("");
   } catch (err) {
-    toast.error("Произошла ошибка, попробуйте снова.");
+    toast.error(t('form.failure'));
   } finally {
     setIsLoading(false);
   }
@@ -46,15 +48,15 @@ export default function ContactSection() {
         <div className="row">
           <div className="col-md-6">
             <h2 className="title">
-              Рассчитаем проект по выгодной цене
-              <span>Заполните форму и мы свяжемся с вами, чтобы ответить на все вопросы.</span>
+              {t('form.title')}
+              <span>{t('form.subtitle')}</span>
             </h2>
           </div>
 
           <div className="col-md-6">
             <form onSubmit={sendFeedback}>
               <div className="row">
-                <input required value={name} onChange={(e) => setName(e.target.value)}  placeholder='Имя' type="fname"className='col-12 mb-3'  />
+                <input required value={name} onChange={(e) => setName(e.target.value)}  placeholder={t('form.name')} type="fname"className='col-12 mb-3'  />
                 <PhoneInput
                   inputProps={{
                     name: 'phone',
@@ -66,13 +68,13 @@ export default function ContactSection() {
                   value={phone}
                   onChange={(phone) => setPhone(phone)}
                 />
-                  <textarea className='col-12 mb-3' value={message} onChange={(e) => setMessage(e.target.value)}  placeholder='Ваше сообщение' name="" id=""></textarea>
+                  <textarea className='col-12 mb-3' value={message} onChange={(e) => setMessage(e.target.value)}  placeholder={t('form.message')} name="" id=""></textarea>
 
                 <button className='button' type='submit' disabled={isLoading}>
                   {isLoading ? (
                     <span className="loader"></span>
                   ) : (
-                    <span>Jo'natish</span>
+                    <span>{t('form.submit')}</span>
                   )}
                 </button>
               </div>

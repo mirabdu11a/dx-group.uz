@@ -1,21 +1,22 @@
+import { useTranslation } from 'react-i18next';
 
 export default function SectionAbout() {
+  const { t } = useTranslation();
+
   return (
     <section className='SectionAbout section'>
       <div className="container">
         <div className="row">
           <div className="col-md-6">
-            <h1 className='title'>Коротко о нас 
-              <span>DX-GROU правильный выбор</span>
+            <h1 className='title'>{t('homeAbout.title')}
+              <span>{t('homeAbout.subtitle')}</span>
             </h1>
           </div>
           <div className="col-md-6">
-            <h5> DX-GROUP — это компания, ориентированная на долгосрочное сотрудничество и устойчивое развитие. Наша миссия — предоставлять надежные и качественные решения, создавая реальную ценность для клиентов и партнеров.
-Мы строим свою работу на принципах ответственности, профессионализма и открытости, постоянно совершенствуя процессы и внедряя современные технологии.
-DX-GROUP стремится быть надежным партнером, которому доверяют — как сегодня, так и в будущем.</h5>
-          
+            <h5>{t('homeAbout.text')}</h5>
+
           <button className="details-btn">
-            <span>Подробно</span>
+            <span>{t('homeAbout.more')}</span>
             <svg
               className="details-btn__arrow"
               width="20"

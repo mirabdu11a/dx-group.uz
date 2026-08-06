@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-
-const stats = [
-  { value: 120, label: "Успешных проектов" },
-  { value: 85, label: "Довольных клиентов" },
-  { value: 10, label: "Лет на рынке" },
-  { value: 15, label: "Партнёрских компаний" },
-];
+import { useTranslation } from "react-i18next";
 
 export default function AboutBody() {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const [start, setStart] = useState(false);
+
+  const stats = [
+    { value: 120, label: t('aboutPage.stats.projects') },
+    { value: 85, label: t('aboutPage.stats.clients') },
+    { value: 10, label: t('aboutPage.stats.years') },
+    { value: 15, label: t('aboutPage.stats.partners') },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,13 +34,11 @@ export default function AboutBody() {
       <div className="container">
         <div className="about-content">
           <h2 className="title">
-            О компании <span>DX-GROUP</span>
+            {t('aboutPage.title')} <span>DX-GROUP</span>
           </h2>
 
           <p className="text">
-            DX-GROUP — это надёжная строительная компания, которая на протяжении
-            многих лет успешно реализует проекты различной сложности. Мы ценим
-            качество, сроки и доверие наших клиентов.
+            {t('aboutPage.text')}
           </p>
         </div>
 

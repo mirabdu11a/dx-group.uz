@@ -1,34 +1,15 @@
-
-const feedbacks = [
-  {
-    name: "Иван Петров",
-    company: "СтройСервис",
-    text: "Очень довольны сотрудничеством с вашей компанией. Работы выполнены качественно и в срок."
-  },
-  {
-    name: "Мария Сидорова",
-    company: "ДомСтрой",
-    text: "Команда профессионалов! Рекомендую всем, кто ищет надежных подрядчиков."
-  },
-  {
-    name: "Алексей Смирнов",
-    company: "СтройКомплект",
-    text: "Отличный сервис и прозрачные условия. Работаем с ними уже несколько лет."
-  },
-  {
-    name: "Ольга Кузнецова",
-    company: "МегаСтрой",
-    text: "Очень понравилось взаимодействие. Все задачи решаются оперативно."
-  }
-];
+import { useTranslation } from 'react-i18next';
 
 export default function Feadbacks() {
+  const { t } = useTranslation();
+  const feedbacks = t('reviews.items', { returnObjects: true });
+
   return (
     <section className="Feadbacks section">
       <div className="container">
         <h2 className="title mb-5">
-          Отзывы наших клиентов
-          <span>Наши клиенты доверяют нам и оставляют свои впечатления о сотрудничестве.</span>
+          {t('reviews.title')}
+          <span>{t('reviews.subtitle')}</span>
         </h2>
       </div>
 
@@ -46,4 +27,3 @@ export default function Feadbacks() {
     </section>
   );
 }
-
