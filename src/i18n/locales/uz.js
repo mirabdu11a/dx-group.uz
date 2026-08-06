@@ -100,6 +100,13 @@ export default {
     back: 'Katalogga qaytish',
     code: 'Artikul',
   },
+  portfolio: {
+    title: 'Bizning loyihalar',
+    subtitle: "DX-GROUP opalubkasi ishlagan obyektlar",
+    empty: "Loyihalar tez orada shu yerda paydo bo'ladi.",
+    showMore: "Yana ko'rsatish",
+    back: 'Loyihalarga qaytish',
+  },
   form: {
     title: 'Loyihani qulay narxda hisoblaymiz',
     subtitle: "Formani to'ldiring, biz siz bilan bog'lanamiz va barcha savollarga javob beramiz.",
