@@ -83,7 +83,9 @@ export default function Portfolio() {
                   <div className="col-md-4 mb-4" key={project.id}>
                     <NavLink to={`/portfolio/${project.id}`} className="ProjectCard">
                       {image && <img src={image} alt={title} />}
-                      <span className="ProjectCard__date">{formatDate(project.date)}</span>
+                      {project.date && (
+                        <span className="ProjectCard__date">{formatDate(project.date)}</span>
+                      )}
                       <h3>{title}</h3>
                       <p>{pickLocale(project, language, 'tizer')}</p>
                     </NavLink>
