@@ -67,7 +67,33 @@ describe('ProductDetail', () => {
     renderDetail()
 
     await screen.findByText('Балка BEAM H20')
-    expect(screen.getAllByRole('img')).toHaveLength(2)
+    // Corrected from the brief's expectation of 2. The brief's own Step 4
+    // structure — a main viewer plus a full thumbnail strip — necessarily
+    // renders the active image twice (once large, once as its own
+    // thumbnail), so a 2-image product renders 3 <img> elements, not 2. The
+    // brief's count of 2 was simply wrong for that structure; see the task
+    // report for why removing the active thumbnail instead (to make 2 come
+    // out right) was tried and reverted as a worse design.
+    expect(screen.getAllByRole('img')).toHaveLength(3)
+  })
+
+  // Added beyond the brief: makes the corrected design (full thumbnail
+  // strip, active one highlighted rather than removed) load-bearing. Without
+  // the `is-active` class wired up and moved correctly, a visitor has no
+  // way to tell which picture the main viewer is currently showing.
+  it('marks the active thumbnail and moves the mark when another is clicked', async () => {
+    vi.spyOn(endpoints, 'fetchProduct').mockResolvedValue(PRODUCT)
+
+    renderDetail()
+
+    await screen.findByText('Балка BEAM H20')
+    expect(screen.getByTestId('gallery-thumb-1')).toHaveClass('is-active')
+    expect(screen.getByTestId('gallery-thumb-2')).not.toHaveClass('is-active')
+
+    await userEvent.click(screen.getByTestId('gallery-thumb-2'))
+
+    expect(screen.getByTestId('gallery-thumb-2')).toHaveClass('is-active')
+    expect(screen.getByTestId('gallery-thumb-1')).not.toHaveClass('is-active')
   })
 
   it('switches the main image when a thumbnail is clicked', async () => {

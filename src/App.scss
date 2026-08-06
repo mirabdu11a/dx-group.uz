@@ -853,6 +853,10 @@ a{
     &:hover{
       border-color: $blue2;
     }
+
+    &.is-active{
+      border-color: $blue2;
+    }
   }
 
   .Detail__code{

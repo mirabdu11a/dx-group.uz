@@ -52,13 +52,15 @@ export default function ProductDetail() {
 
   const name = pickLocale(data, language, 'name')
   const gallery = data.images ?? []
-  // The active gallery entry is the main picture; every other entry becomes
-  // a thumbnail, so each gallery image is rendered exactly once — never
-  // duplicated between the main viewer and the thumbnail strip. When the
-  // gallery is empty this falls back to the cover `image`, and when even
-  // that is null `main` is null and no <img> is rendered at all.
+  // The active gallery entry is shown as the main picture. The strip below
+  // shows every gallery entry, including the active one — a conventional
+  // gallery, where the active thumbnail is highlighted rather than removed.
+  // Removing it would shift every other thumbnail's position on each click,
+  // so the thumbnail a visitor just clicked would no longer be under their
+  // cursor for the next click. When the gallery is empty this falls back to
+  // the cover `image`, and when even that is null `main` is null and no
+  // <img> is rendered at all.
   const activeItem = gallery.find((item) => item.id === activeId) ?? gallery[0]
-  const thumbs = gallery.filter((item) => item.id !== activeItem?.id)
   const main = mediaUrl(activeItem?.image ?? data.image)
 
   return (
@@ -72,13 +74,13 @@ export default function ProductDetail() {
               <img className="Detail__main" src={main} alt={name} data-testid="gallery-main" />
             )}
 
-            {thumbs.length > 0 && (
+            {gallery.length > 1 && (
               <div className="Detail__thumbs">
-                {thumbs.map((item) => (
+                {gallery.map((item) => (
                   <button
                     key={item.id}
                     type="button"
-                    className="Detail__thumb"
+                    className={`Detail__thumb${item.id === activeItem?.id ? ' is-active' : ''}`}
                     data-testid={`gallery-thumb-${item.id}`}
                     onClick={() => setActiveId(item.id)}
                   >
