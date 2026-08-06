@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -17,16 +17,43 @@ export default function CatalogSection() {
   const { language } = useLanguage()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const urlCategory = Number(searchParams.get('category')) || null
-  const [items, setItems] = useState([])
-  const [next, setNext] = useState(null)
-  const [loadingMore, setLoadingMore] = useState(false)
+  // `!= null` (not truthiness) so category id `0` is never mistaken for
+  // "no filter" — mirrors the same presence check in api/endpoints.js.
+  const categoryParam = searchParams.get('category')
+  const parsedCategory = categoryParam != null ? Number(categoryParam) : null
+  const urlCategory = Number.isNaN(parsedCategory) ? null : parsedCategory
 
   const categories = useApi(fetchCategories)
   const products = useApi(
-    () => fetchProducts(urlCategory ? { category: urlCategory } : {}),
+    () => fetchProducts(urlCategory != null ? { category: urlCategory } : {}),
     [urlCategory],
   )
+
+  // "Show more" pages accumulate here, on top of whatever `products.data`
+  // (the first page) holds. These come from a second, independent request
+  // (fetchUrl), so — unlike the first page — they can't be derived from
+  // `products` and genuinely need their own state.
+  const [extraResults, setExtraResults] = useState([])
+  // undefined = "no show-more fetched yet for this filter, use
+  // products.data.next"; once "show more" resolves this holds the next
+  // cursor for the page after that (possibly null, on the last page).
+  const [moreNext, setMoreNext] = useState(undefined)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  // Clears the accumulated "show more" state when the filter changes.
+  // Done here, during render (the documented React pattern for resetting
+  // state from a prop/derived value), rather than in an effect — an
+  // effect-based reset would still leave one committed, painted frame
+  // where the previous category's extra pages are attached to the new
+  // category's first page. Doing it here means `items` below is always
+  // correct on the very render `products.data` changes.
+  const [resetKey, setResetKey] = useState(urlCategory)
+  if (resetKey !== urlCategory) {
+    setResetKey(urlCategory)
+    setExtraResults([])
+    setMoreNext(undefined)
+    setLoadingMore(false)
+  }
 
   // Bumped on every filter change. "Show more" captures the value when it
   // starts and compares on arrival, so a slow response for the previous
@@ -37,15 +64,21 @@ export default function CatalogSection() {
     generationRef.current += 1
   }, [urlCategory])
 
-  useEffect(() => {
-    if (!products.data) return
-    setItems(products.data.results)
-    setNext(products.data.next)
-    setLoadingMore(false)
-  }, [products.data])
+  // Derived directly from `products.data` rather than synced into state by
+  // an effect. useApi batches `data` and `loading:false` into one update,
+  // so an effect-based sync would leave a committed, painted frame where
+  // `loading` is already false but `items` still shows the previous
+  // category's cards — the effect that copies `products.data` into state
+  // only runs after that frame paints. Deriving during render closes that
+  // window entirely.
+  const items = useMemo(
+    () => [...(products.data?.results ?? []), ...extraResults],
+    [products.data, extraResults],
+  )
+  const next = moreNext !== undefined ? moreNext : (products.data?.next ?? null)
 
   const selectCategory = (id) => {
-    setSearchParams(id ? { category: String(id) } : {})
+    setSearchParams(id != null ? { category: String(id) } : {})
   }
 
   const showMore = async () => {
@@ -55,8 +88,8 @@ export default function CatalogSection() {
     try {
       const nextPage = await fetchUrl(next)
       if (generationRef.current !== generation) return
-      setItems((prev) => [...prev, ...nextPage.results])
-      setNext(nextPage.next)
+      setExtraResults((prev) => [...prev, ...nextPage.results])
+      setMoreNext(nextPage.next)
     } finally {
       if (generationRef.current === generation) setLoadingMore(false)
     }
