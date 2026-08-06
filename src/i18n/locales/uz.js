@@ -96,6 +96,10 @@ export default {
     showMore: "Yana ko'rsatish",
     empty: "Bu kategoriyada hozircha mahsulot yo'q.",
   },
+  product: {
+    back: 'Katalogga qaytish',
+    code: 'Artikul',
+  },
   form: {
     title: 'Loyihani qulay narxda hisoblaymiz',
     subtitle: "Formani to'ldiring, biz siz bilan bog'lanamiz va barcha savollarga javob beramiz.",
