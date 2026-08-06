@@ -54,7 +54,7 @@ export default {
     items: [
       {
         name: 'Ivan Petrov',
-        company: 'StroySservis',
+        company: 'StroyServis',
         text: "Kompaniyangiz bilan hamkorlikdan juda mamnunmiz. Ishlar sifatli va o'z vaqtida bajarildi.",
       },
       {
@@ -95,7 +95,7 @@ export default {
     message: 'Xabaringiz',
     submit: "Jo'natish",
     invalidPhone: "Telefon raqami +998 bilan boshlanib, 9 ta raqamdan iborat bo'lishi kerak!",
-    success: "Ariza qabul qilindi. Qo'ng'iroqni kuting!",
+    success: "Muvaffaqiyatli yakunlandi. Qo'ng'iroqni kuting!",
     failure: "Xatolik yuz berdi, qayta urinib ko'ring.",
   },
 }
