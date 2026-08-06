@@ -88,6 +88,11 @@ export default {
     about: "«DX-GROUP» — O'zbekiston bo'ylab lizing, ishlab chiqarish va ijara xizmatlari.",
     catalog: 'Mahsulotlar katalogi',
   },
+  catalog: {
+    title: 'Bizning mahsulotlar',
+    subtitle: "Ko'proq bilish uchun «Batafsil» tugmasini bosing",
+    viewAll: "Katalogni ko'rish",
+  },
   form: {
     title: 'Loyihani qulay narxda hisoblaymiz',
     subtitle: "Formani to'ldiring, biz siz bilan bog'lanamiz va barcha savollarga javob beramiz.",

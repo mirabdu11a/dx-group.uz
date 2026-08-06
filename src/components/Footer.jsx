@@ -2,8 +2,19 @@ import logo from '../assets/logo.svg'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { useApi } from '../hooks/useApi'
+import { fetchCategories } from '../api/endpoints'
+import { useLanguage } from '../context/LanguageContext'
+import { pickLocale } from '../utils/locale'
+
 export default function Footer() {
   const { t } = useTranslation();
+  const { language } = useLanguage()
+  const { data } = useApi(fetchCategories)
+
+  // The footer stays silent on error and while loading — an empty list is
+  // the right fallback here, unlike the home section's skeletons/error text.
+  const categories = data ?? []
 
   return (
     <footer className='Footer'>
@@ -16,13 +27,13 @@ export default function Footer() {
           <div className="col-md-4">
             <ul className="product-list">
               <h4>{t('footer.catalog')}</h4>
-              <li><NavLink to='/products'>Крупнощитовая опалубка</NavLink></li>
-              <li><NavLink to='/products'>Балка опалубки двутавровая бдк 1 мс beam h20</NavLink></li>
-              <li><NavLink to='/products'>Комплектующие</NavLink></li>
-              <li><NavLink to='/products'>Крупнощитовая опалубка</NavLink></li>
-              <li><NavLink to='/products'>Стойка телескопическая</NavLink></li>
-              <li><NavLink to='/products'>Промышленная опалубка</NavLink></li>
-
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <NavLink to={`/products?category=${category.id}`}>
+                    {pickLocale(category, language, 'name')}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="col-md-4">

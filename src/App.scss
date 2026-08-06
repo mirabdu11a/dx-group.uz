@@ -61,6 +61,25 @@ ul{
 
 }
 
+.section-error,
+.section-empty{
+  padding: 24px 12px;
+  color: $black;
+  font-size: 16px;
+}
+
+.card-skeleton{
+  height: 260px;
+
+  &::after{
+    content: '';
+    display: block;
+    height: 100%;
+    border-radius: 8px;
+    background: $silver;
+  }
+}
+
 .location{
   width: 100%;
   height: 40vh;
@@ -321,6 +340,10 @@ a{
   }
 
   .card{
+    display: block;
+    color: inherit;
+    text-decoration: none;
+
     height: 100%;
     position: relative;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -334,10 +357,16 @@ a{
     }
     img{
       position: absolute;
-       transition: 0.3s;
-      
+      right: 0;
+      bottom: 0;
+      width: 200px;
+      height: 160px;
+      object-fit: contain;
+      z-index: 1;
+      transition: 0.3s;
     }
-    button{
+    button,
+    .details-btn{
       position: absolute;
       left: 20px;
       bottom: 20px;
@@ -350,50 +379,6 @@ a{
       }
     }
   }
-
-  .col-md-4:nth-child(1) .card img {
-    right: 30px;
-    bottom: 30px;
-    width: 170px;
-    z-index: 1;
-  }
-
-  .col-md-4:nth-child(2) .card img {
-    right: -30px;
-    bottom: 0px;
-    width: 270px;
-    z-index: 1;
-  }
-
-  .col-md-4:nth-child(3) .card img {
-    right: -30px;
-    bottom: 0px;
-    width: 200px;
-    z-index: 1;
-  }
-
-  .col-md-4:nth-child(4) .card img {
-    right: -30px;
-    bottom: 0px;
-    width: 220px;
-    z-index: 1;
-  }
-
-  .col-md-4:nth-child(5) .card img {
-    right: -10px;
-    bottom: 0px;
-    width: 170px;
-    z-index: 1;
-  }
-
-  .col-md-4:nth-child(6) .card img {
-    right: 30px;
-    bottom: 0px;
-    width: 120px;
-    z-index: 1;
-  }
-
-
 }
 
 .Premushestva{
