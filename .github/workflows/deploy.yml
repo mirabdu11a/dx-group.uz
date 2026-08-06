@@ -1,0 +1,49 @@
+name: Deploy to server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      # The API origin is baked into the bundle at build time. Without it
+      # the build throws rather than silently shipping the localhost
+      # fallback — see the guard in src/api/client.js.
+      - name: Build
+        env:
+          VITE_API_URL: ${{ secrets.DX_FRONT_API_URL }}
+        run: npm run build
+
+      - name: Pack
+        run: tar -czf dist.tar.gz -C dist .
+
+      - name: Ship
+        env:
+          KEY: ${{ secrets.DX_FRONT_DEPLOY_KEY }}
+          HOST: ${{ secrets.DX_FRONT_HOST }}
+          USER: ${{ secrets.DX_FRONT_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # The server's authorized_keys forces /usr/local/bin/dx-front-deploy,
+          # which reads the tarball from stdin — so this key can do exactly
+          # one thing no matter what is sent.
+          ssh -i ~/.ssh/id_ed25519 "$USER@$HOST" < dist.tar.gz
