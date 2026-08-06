@@ -8,6 +8,17 @@ import { sendLead } from '../api/endpoints'
 
 const UZ_PHONE = /^\+998\d{9}$/
 
+// DRF field errors arrive as `{ field: ['message', ...] }` (or, less often,
+// `{ field: 'message' }`). Surfaces the first one so a 400 tells the
+// visitor what was actually rejected, instead of a generic failure toast.
+function firstFieldError(body) {
+  if (!body || typeof body !== 'object') return null
+  const [firstValue] = Object.values(body)
+  if (Array.isArray(firstValue)) return firstValue[0] ?? null
+  if (typeof firstValue === 'string') return firstValue
+  return null
+}
+
 export default function ContactSection() {
   const { t } = useTranslation()
   const [name, setName] = useState('')
@@ -32,8 +43,18 @@ export default function ContactSection() {
       setName('')
       setPhone('')
       setMessage('')
-    } catch {
-      toast.error(t('form.failure'))
+    } catch (error) {
+      // api/client.js deliberately attaches `error.status` and the parsed
+      // DRF `error.body` for exactly this: the backend throttles
+      // /api/lead/ at 5/hour/IP (429), and validation failures (400) name
+      // the offending field. Everything else keeps the generic message.
+      if (error?.status === 429) {
+        toast.error(t('form.throttled'))
+      } else if (error?.status === 400) {
+        toast.error(firstFieldError(error.body) || t('form.failure'))
+      } else {
+        toast.error(t('form.failure'))
+      }
     } finally {
       setIsLoading(false)
     }

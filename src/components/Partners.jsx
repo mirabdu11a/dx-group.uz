@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import logo1 from '../assets/logo1.svg';
 import logo2 from '../assets/logo2.svg';

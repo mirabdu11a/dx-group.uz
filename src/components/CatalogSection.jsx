@@ -39,6 +39,7 @@ export default function CatalogSection() {
   // cursor for the page after that (possibly null, on the last page).
   const [moreNext, setMoreNext] = useState(undefined)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [moreError, setMoreError] = useState(false)
 
   // Clears the accumulated "show more" state when the filter changes.
   // Done here, during render (the documented React pattern for resetting
@@ -53,6 +54,7 @@ export default function CatalogSection() {
     setExtraResults([])
     setMoreNext(undefined)
     setLoadingMore(false)
+    setMoreError(false)
   }
 
   // Bumped on every filter change. "Show more" captures the value when it
@@ -85,11 +87,14 @@ export default function CatalogSection() {
     if (!next) return
     const generation = generationRef.current
     setLoadingMore(true)
+    setMoreError(false)
     try {
       const nextPage = await fetchUrl(next)
       if (generationRef.current !== generation) return
       setExtraResults((prev) => [...prev, ...nextPage.results])
       setMoreNext(nextPage.next)
+    } catch {
+      if (generationRef.current === generation) setMoreError(true)
     } finally {
       if (generationRef.current === generation) setLoadingMore(false)
     }
@@ -169,6 +174,7 @@ export default function CatalogSection() {
                     >
                       {loadingMore ? t('state.loading') : t('catalog.showMore')}
                     </button>
+                    {moreError && <p className="section-error">{t('state.error')}</p>}
                   </div>
                 )}
               </>

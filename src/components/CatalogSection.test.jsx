@@ -143,6 +143,58 @@ describe('CatalogSection', () => {
     expect(screen.getByText('Балка BEAM H20')).toBeInTheDocument()
   })
 
+  // Added beyond the brief: both showMore functions in this branch were
+  // `try { … } finally { … }` with no `catch`, so a rejected fetchUrl became
+  // an unhandled rejection — the button re-enabled and nothing else told the
+  // visitor anything failed. This pins the fix: the already-loaded first
+  // page must survive and an error message must appear near the button.
+  it('shows an error and keeps existing items when "show more" fails', async () => {
+    vi.spyOn(endpoints, 'fetchProducts').mockResolvedValue(
+      page([PRODUCT], 'http://api/api/product/?page=2'),
+    )
+    vi.spyOn(endpoints, 'fetchUrl').mockRejectedValue(new Error('boom'))
+
+    renderCatalog()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Показать ещё' }))
+
+    expect(
+      await screen.findByText('Не удалось загрузить данные. Попробуйте позже.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Балка BEAM H20')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Показать ещё' })).not.toBeDisabled()
+  })
+
+  // Added beyond the brief: the generation-guarded `moreNext` chaining
+  // across two consecutive "show more" clicks was correct by inspection but
+  // had no test exercising a second click landing on top of the first.
+  it('chains two sequential "show more" clicks', async () => {
+    vi.spyOn(endpoints, 'fetchProducts').mockResolvedValue(
+      page([PRODUCT], 'http://api/api/product/?page=2'),
+    )
+    const fetchUrl = vi
+      .spyOn(endpoints, 'fetchUrl')
+      .mockResolvedValueOnce(
+        page([{ ...PRODUCT, id: 11, name_ru: 'Замок' }], 'http://api/api/product/?page=3'),
+      )
+      .mockResolvedValueOnce(page([{ ...PRODUCT, id: 12, name_ru: 'Гайка' }]))
+
+    renderCatalog()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Показать ещё' }))
+    expect(await screen.findByText('Замок')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Показать ещё' }))
+    expect(await screen.findByText('Гайка')).toBeInTheDocument()
+
+    expect(fetchUrl).toHaveBeenNthCalledWith(1, 'http://api/api/product/?page=2')
+    expect(fetchUrl).toHaveBeenNthCalledWith(2, 'http://api/api/product/?page=3')
+    expect(screen.getByText('Балка BEAM H20')).toBeInTheDocument()
+    expect(screen.getByText('Замок')).toBeInTheDocument()
+    // Last page reached — the button disappears.
+    expect(screen.queryByRole('button', { name: 'Показать ещё' })).toBeNull()
+  })
+
   it('hides "show more" on the last page', async () => {
     vi.spyOn(endpoints, 'fetchProducts').mockResolvedValue(page([PRODUCT]))
 

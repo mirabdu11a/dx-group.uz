@@ -53,6 +53,36 @@ describe('BASE_URL', () => {
     vi.unstubAllEnvs()
     vi.resetModules()
   })
+
+  // Added beyond the brief: the old fallback (`http://127.0.0.1:8000`) was
+  // reachable even in a production build if whoever deploys forgets to set
+  // VITE_API_URL — the reviewer confirmed localhost gets baked straight
+  // into `dist/` with no build-time error and no runtime clue. Every
+  // section of the live site would then show the generic "couldn't load"
+  // message. Module load must throw instead, so the build fails loudly.
+  it('throws at module load when VITE_API_URL is unset in a production build', async () => {
+    vi.stubEnv('VITE_API_URL', '')
+    vi.stubEnv('PROD', true)
+    vi.resetModules()
+
+    await expect(import('./client')).rejects.toThrow(/VITE_API_URL/)
+
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  it('keeps the localhost fallback outside a production build', async () => {
+    vi.stubEnv('VITE_API_URL', '')
+    vi.stubEnv('PROD', false)
+    vi.resetModules()
+
+    const fresh = await import('./client')
+
+    expect(fresh.BASE_URL).toBe('http://127.0.0.1:8000')
+
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
 })
 
 describe('apiGet', () => {

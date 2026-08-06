@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 import { LanguageProvider } from '../context/LanguageContext'
 import ContactSection from './ContactSection'
 import * as endpoints from '../api/endpoints'
@@ -97,6 +98,61 @@ describe('ContactSection', () => {
 
     expect(screen.getByPlaceholderText('Ismingiz')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: "Jo'natish" })).toBeInTheDocument()
+  })
+
+  // Added beyond the brief: `catch { toast.error(t('form.failure')) }`
+  // discarded `error.status` and `error.body`, which api/client.js
+  // deliberately attaches. The backend throttles /api/lead/ at 5/hour/IP
+  // and returns 429 — a visitor who trips it saw the same generic message
+  // as any other failure, with no clue to wait. Pins the 429 branch.
+  it('shows a throttled message when the backend returns 429', async () => {
+    const error = new Error('too many requests')
+    error.status = 429
+    vi.spyOn(endpoints, 'sendLead').mockRejectedValue(error)
+    const toastError = vi.spyOn(toast, 'error')
+
+    renderForm()
+    await fillIn()
+    await userEvent.click(screen.getByRole('button', { name: 'Отправить' }))
+
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith('Слишком много заявок. Попробуйте через час.'),
+    )
+  })
+
+  // Added beyond the brief: a 400 validation failure (bad phone/name/message
+  // length) is equally invisible under the old catch-all. DRF returns field
+  // errors as `{ field: ['message'] }`; the first one should surface instead
+  // of the generic failure toast.
+  it('shows the first field error for a 400 validation failure', async () => {
+    const error = new Error('bad request')
+    error.status = 400
+    error.body = { phone: ['Неверный номер.'] }
+    vi.spyOn(endpoints, 'sendLead').mockRejectedValue(error)
+    const toastError = vi.spyOn(toast, 'error')
+
+    renderForm()
+    await fillIn()
+    await userEvent.click(screen.getByRole('button', { name: 'Отправить' }))
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('Неверный номер.'))
+  })
+
+  // A 400 with no parseable body (or any other status) still falls back to
+  // the generic failure message — this is the "everything else" branch.
+  it('falls back to the generic failure message for a status with no field errors', async () => {
+    const error = new Error('server error')
+    error.status = 500
+    vi.spyOn(endpoints, 'sendLead').mockRejectedValue(error)
+    const toastError = vi.spyOn(toast, 'error')
+
+    renderForm()
+    await fillIn()
+    await userEvent.click(screen.getByRole('button', { name: 'Отправить' }))
+
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith('Произошла ошибка, попробуйте снова.'),
+    )
   })
 
   // Added beyond the brief, per the standing instruction: this is the actual

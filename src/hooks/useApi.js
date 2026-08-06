@@ -1,4 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+function depsChanged(prev, next) {
+  if (prev.length !== next.length) return true
+  return prev.some((dep, index) => !Object.is(dep, next[index]))
+}
 
 /**
  * Runs `fetcher` on mount and whenever `deps` change.
@@ -11,6 +16,24 @@ export function useApi(fetcher, deps = []) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Render-phase reset, mirroring the pattern CatalogSection's `resetKey`
+  // and the detail pages' `routeKey` already use: when `deps` differ from
+  // the deps this render's state was computed for, drop synchronously to
+  // {data: null, loading: true, error: null} in the same render — before
+  // anything commits or paints. Without this, the effect below (which runs
+  // *after* paint) is the only place state gets reset, so React commits and
+  // paints one frame where `deps` has already changed but `data`/`error`
+  // still hold the *previous* deps' settled values with `loading: false`.
+  // Any consumer that gates on `loading` (or renders `data` once truthy)
+  // shows a flash of stale content in that frame.
+  const prevDeps = useRef(deps)
+  if (depsChanged(prevDeps.current, deps)) {
+    prevDeps.current = deps
+    setData(null)
+    setLoading(true)
+    setError(null)
+  }
 
   useEffect(() => {
     let alive = true

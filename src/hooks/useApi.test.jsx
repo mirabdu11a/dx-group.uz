@@ -131,4 +131,42 @@ describe('useApi', () => {
     await waitFor(() => expect(result.current.error).toBe(boom))
     expect(result.current.data).toBeNull()
   })
+
+  // Pins the render-phase reset: setLoading(true) previously lived only
+  // inside the effect, which runs after paint. That left one committed,
+  // painted frame where `deps` had already changed but `data` still held
+  // the *previous* deps' value and `loading` was still `false` — a
+  // consumer gating on `if (loading || !data)` renders the stale value in
+  // that frame. This asserts the state immediately visible once a deps
+  // change has been processed (rerender flushes the synchronous render-
+  // phase reset and the effect within the same `act`), before the new
+  // fetch settles: `data` must already be back to `null`, not the id=1
+  // value hanging around while `loading` reads `true`.
+  it('resets data to null before the new value arrives on a deps change', async () => {
+    let resolveSecond
+    const fetcher = vi
+      .fn()
+      .mockImplementationOnce(() => Promise.resolve('data-for-1'))
+      .mockImplementationOnce(() => new Promise((r) => { resolveSecond = r }))
+
+    const { result, rerender } = renderHook(
+      ({ id }) => useApi(() => fetcher(id), [id]),
+      { initialProps: { id: 1 } },
+    )
+
+    await waitFor(() => expect(result.current.data).toBe('data-for-1'))
+
+    rerender({ id: 2 })
+
+    expect(result.current.data).toBeNull()
+    expect(result.current.loading).toBe(true)
+    expect(result.current.error).toBeNull()
+
+    await act(async () => {
+      resolveSecond('data-for-2')
+      await Promise.resolve()
+    })
+
+    expect(result.current.data).toBe('data-for-2')
+  })
 })

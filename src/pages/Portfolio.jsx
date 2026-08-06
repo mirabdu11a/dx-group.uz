@@ -27,6 +27,7 @@ export default function Portfolio() {
   // (possibly null, on the last page).
   const [moreNext, setMoreNext] = useState(undefined)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [moreError, setMoreError] = useState(false)
 
   // Derived directly from `data` rather than synced into state by a
   // useEffect. useApi batches `data` and `loading:false` into one update,
@@ -43,10 +44,13 @@ export default function Portfolio() {
   const showMore = async () => {
     if (!next) return
     setLoadingMore(true)
+    setMoreError(false)
     try {
       const nextPage = await fetchUrl(next)
       setExtraResults((prev) => [...prev, ...nextPage.results])
       setMoreNext(nextPage.next)
+    } catch {
+      setMoreError(true)
     } finally {
       setLoadingMore(false)
     }
@@ -95,6 +99,7 @@ export default function Portfolio() {
             <button type="button" className="button" onClick={showMore} disabled={loadingMore}>
               {loadingMore ? t('state.loading') : t('portfolio.showMore')}
             </button>
+            {moreError && <p className="section-error">{t('state.error')}</p>}
           </div>
         )}
       </div>

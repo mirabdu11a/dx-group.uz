@@ -1,5 +1,17 @@
 // Backend origin, no trailing slash. Set VITE_API_URL in .env; the
 // fallback keeps `npm run dev` working with a local backend.
+//
+// In a production build there is no safe fallback: shipping with
+// localhost baked into `dist/` fails silently — no build-time error, no
+// runtime clue, just every section of the live site showing the generic
+// "couldn't load" message. Throwing here instead makes a forgotten
+// VITE_API_URL fail the build loudly, before it ever ships.
+if (!import.meta.env.VITE_API_URL && import.meta.env.PROD) {
+  throw new Error(
+    'VITE_API_URL is not set. Refusing to build with the localhost fallback.',
+  )
+}
+
 export const BASE_URL = (
   import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 ).replace(/\/+$/, '')

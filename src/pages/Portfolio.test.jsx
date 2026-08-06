@@ -121,6 +121,57 @@ describe('Portfolio list', () => {
     expect(screen.getByText('ЖК «Навруз»')).toBeInTheDocument()
   })
 
+  // Added beyond the brief: showMore here was `try { … } finally { … }`
+  // with no `catch`, so a rejected fetchUrl became an unhandled rejection —
+  // the button re-enabled and nothing else told the visitor anything
+  // failed. This pins the fix: the already-loaded first page must survive
+  // and an error message must appear near the button.
+  it('shows an error and keeps existing items when "show more" fails', async () => {
+    vi.spyOn(endpoints, 'fetchPortfolioList').mockResolvedValue(
+      page([PROJECT], 'http://api/api/portfolio/?page=2'),
+    )
+    vi.spyOn(endpoints, 'fetchUrl').mockRejectedValue(new Error('boom'))
+
+    renderPage()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Показать ещё' }))
+
+    expect(
+      await screen.findByText('Не удалось загрузить данные. Попробуйте позже.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('ЖК «Навруз»')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Показать ещё' })).not.toBeDisabled()
+  })
+
+  // Added beyond the brief: the "show more" cursor chaining across two
+  // consecutive clicks had no test exercising a second click landing on
+  // top of the first.
+  it('chains two sequential "show more" clicks', async () => {
+    vi.spyOn(endpoints, 'fetchPortfolioList').mockResolvedValue(
+      page([PROJECT], 'http://api/api/portfolio/?page=2'),
+    )
+    const fetchUrl = vi
+      .spyOn(endpoints, 'fetchUrl')
+      .mockResolvedValueOnce(
+        page([{ ...PROJECT, id: 4, title_ru: 'Завод' }], 'http://api/api/portfolio/?page=3'),
+      )
+      .mockResolvedValueOnce(page([{ ...PROJECT, id: 6, title_ru: 'Склад' }]))
+
+    renderPage()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Показать ещё' }))
+    expect(await screen.findByText('Завод')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Показать ещё' }))
+    expect(await screen.findByText('Склад')).toBeInTheDocument()
+
+    expect(fetchUrl).toHaveBeenNthCalledWith(1, 'http://api/api/portfolio/?page=2')
+    expect(fetchUrl).toHaveBeenNthCalledWith(2, 'http://api/api/portfolio/?page=3')
+    expect(screen.getByText('ЖК «Навруз»')).toBeInTheDocument()
+    expect(screen.getByText('Завод')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Показать ещё' })).toBeNull()
+  })
+
   it('renders Uzbek titles when the language is Uzbek', async () => {
     window.localStorage.setItem('dx-lang', 'uz')
     vi.spyOn(endpoints, 'fetchPortfolioList').mockResolvedValue(page([PROJECT]))

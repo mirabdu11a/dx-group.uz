@@ -13,7 +13,7 @@ export default {
     empty: "Hozircha ma'lumot yo'q.",
   },
   header: {
-    title: 'Qurilish inshootlari ishlab chiqarish',
+    title: 'Qurilish iskalalari ishlab chiqarish',
     subtitle: 'Qurilish va sanoat uchun ishonchli konstruksiyalar',
     cta: 'Mahsulotlarimiz',
   },
@@ -25,15 +25,15 @@ export default {
   },
   advantages: {
     title: 'Nima uchun bizni tanlashadi',
-    subtitle: 'Balandlikda xavfsiz, tez va samarali ishlash uchun ishonchli qurilish inshootlari.',
+    subtitle: 'Balandlikda xavfsiz, tez va samarali ishlash uchun ishonchli qurilish iskalalari.',
     items: [
       {
         title: 'Ishonchli konstruksiya',
-        text: "Qurilish inshootlarimiz mustahkam po'latdan tayyorlangan va yuqori yuklamaga mo'ljallangan, ishning har bosqichida xavfsizlik va barqarorlikni ta'minlaydi.",
+        text: "Qurilish iskalalarimiz mustahkam po'latdan tayyorlangan va yuqori yuklamaga mo'ljallangan, ishning har bosqichida xavfsizlik va barqarorlikni ta'minlaydi.",
       },
       {
         title: "Tez yig'ish va qismlarga ajratish",
-        text: "Modulli tizim inshootlarni oson va tez yig'ish va qismlarga ajratish imkonini beradi, vaqtni tejaydi va ishchi kuchi xarajatlarini kamaytiradi.",
+        text: "Modulli tizim iskalalarni oson va tez yig'ish va qismlarga ajratish imkonini beradi, vaqtni tejaydi va ishchi kuchi xarajatlarini kamaytiradi.",
       },
       {
         title: 'Xavfsizlik va standartlarga muvofiqlik',
@@ -116,5 +116,6 @@ export default {
     invalidPhone: "Telefon raqami +998 bilan boshlanib, 9 ta raqamdan iborat bo'lishi kerak!",
     success: "Muvaffaqiyatli yakunlandi. Qo'ng'iroqni kuting!",
     failure: "Xatolik yuz berdi, qayta urinib ko'ring.",
+    throttled: "Juda ko'p so'rov yuborildi. Bir soatdan so'ng qayta urinib ko'ring.",
   },
 }
