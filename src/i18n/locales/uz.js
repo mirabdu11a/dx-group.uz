@@ -92,6 +92,9 @@ export default {
     title: 'Bizning mahsulotlar',
     subtitle: "Ko'proq bilish uchun «Batafsil» tugmasini bosing",
     viewAll: "Katalogni ko'rish",
+    all: 'Barchasi',
+    showMore: "Yana ko'rsatish",
+    empty: "Bu kategoriyada hozircha mahsulot yo'q.",
   },
   form: {
     title: 'Loyihani qulay narxda hisoblaymiz',

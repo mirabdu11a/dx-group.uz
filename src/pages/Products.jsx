@@ -1,7 +1,5 @@
-import React from 'react'
+import CatalogSection from '../components/CatalogSection'
 
 export default function Products() {
-  return (
-    <div>Products</div>
-  )
+  return <CatalogSection />
 }
