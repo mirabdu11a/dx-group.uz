@@ -1,47 +1,44 @@
-import { CHAT_ID, TOKEN } from "../constants";
 import { useState } from 'react'
 import { PhoneInput } from 'react-international-phone'
-import 'react-international-phone/style.css';
-import axios from "axios";
-import { toast } from "react-toastify";
-import { useTranslation } from 'react-i18next';
+import 'react-international-phone/style.css'
+import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+
+import { sendLead } from '../api/endpoints'
+
+const UZ_PHONE = /^\+998\d{9}$/
 
 export default function ContactSection() {
-  const { t } = useTranslation();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  
-  let text = `Ismi: ${name}.%0ATelefon raqami : ${phone}.%0AXabar : ${message}.`;
+  const { t } = useTranslation()
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [message, setMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const sendFeedback = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+  const submit = async (event) => {
+    event.preventDefault()
 
-  const uzbPhoneRegex = /^\+998\d{9}$/;
+    if (!UZ_PHONE.test(phone)) {
+      toast.error(t('form.invalidPhone'))
+      return
+    }
 
-  if (!uzbPhoneRegex.test(phone)) {
-    toast.error(t('form.invalidPhone'));
-    setIsLoading(false);
-    return;
+    setIsLoading(true)
+    try {
+      // The backend stores the lead and forwards it to Telegram. The bot
+      // token lives there, not in this bundle.
+      await sendLead({ name, phone, message })
+      toast.success(t('form.success'))
+      setName('')
+      setPhone('')
+      setMessage('')
+    } catch {
+      toast.error(t('form.failure'))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  try {
-    await axios.post(
-      `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${text}`
-    );
-
-    toast.success(t('form.success'));
-    setName("");
-    setPhone("");
-    setMessage("");
-  } catch (err) {
-    toast.error(t('form.failure'));
-  } finally {
-    setIsLoading(false);
-  }
-};
   return (
     <section className='ContactSection section'>
       <div className="container">
@@ -54,7 +51,7 @@ export default function ContactSection() {
           </div>
 
           <div className="col-md-6">
-            <form onSubmit={sendFeedback}>
+            <form onSubmit={submit}>
               <div className="row">
                 <input required value={name} onChange={(e) => setName(e.target.value)}  placeholder={t('form.name')} type="fname"className='col-12 mb-3'  />
                 <PhoneInput
