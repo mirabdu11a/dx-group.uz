@@ -13,6 +13,7 @@ import ContactSection from './components/ContactSection'
 import Location from './components/Location'
 import { ToastContainer } from 'react-toastify'
 import ScrollToTop from './components/ScrollToTop'
+import MobileCallButton from './components/MobileCallButton'
 
 function App() {
 
@@ -20,7 +21,7 @@ function App() {
     <>
       <Navbar/>
       <ScrollToTop/>
-      <ToastContainer/>
+      <ToastContainer/> 
       <Routes>
         <Route index element={<Home/>}/>
         <Route path='/about' element={<About />} />
@@ -33,6 +34,7 @@ function App() {
       <ContactSection/>
       <Location/>
       <Footer/>
+      <MobileCallButton/>
     </>
   )
 }
